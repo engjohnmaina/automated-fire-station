@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tactical Mission Control Tower</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="header">
+      <h1>🛰️ Tactical Mission Control Tower</h1>
+      <p>Integrated Graph Routing & Interlock Deployment System</p>
+    </div>
+
+    <div class="layout-grid">
+      <!-- Main Metrics Map Panel -->
+      <div>
+        <div class="card" style="padding: 10px">
+          <div class="map-container" id="mapWorkspace"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Real-Time Core Telemetry</div>
+          <div class="tel-grid">
+            <div class="tel-item" id="hbCard">
+              <div class="tel-label">Heartbeat Conn</div>
+              <div class="tel-value" id="val_online">OFFLINE</div>
+            </div>
+            <div class="tel-item">
+              <div class="tel-label">Active Node</div>
+              <div class="tel-value" id="val_pos">STATION</div>
+            </div>
+            <div class="tel-item">
+              <div class="tel-label">Coordinates</div>
+              <div class="tel-value" id="val_coord">(0m,0m)</div>
+            </div>
+            <div class="tel-item">
+              <div class="tel-label">Target / Current Brg</div>
+              <div class="tel-value" id="val_bearing">0° / 0°</div>
+            </div>
+            <div class="tel-item">
+              <div class="tel-label">PID Steering Error</div>
+              <div class="tel-value" id="val_pid_err">0°</div>
+            </div>
+            <div class="tel-item">
+              <div class="tel-label">Odometer / Jokers</div>
+              <div class="tel-value" id="val_odo">0.0m | 0/3</div>
+            </div>
+            <div class="tel-item" id="sirenCard">
+              <div class="tel-label">Siren / Fines</div>
+              <div class="tel-value" id="val_siren">OFF | KSH 0</div>
+            </div>
+            <div class="tel-item">
+              <div class="tel-label">Bus Voltage</div>
+              <div class="tel-value" id="val_voltage">12.60 V</div>
+              <div class="battery-bar">
+                <div class="battery-fill" id="batFill"></div>
+                <div class="battery-text" id="batTxt">100%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirm-box" id="phoneConfirmContainer">
+          <p>
+            🚨 INTERCEPTED FIRE ALERT WORKFLOW: Verify Target Command
+            Authenticity? (Timeout: <span id="lbl_phone_timer">60</span>s)
+          </p>
+          <div class="confirm-btns">
+            <button class="btn-success" onclick="postConfirmation('yes')">
+              AUTHORIZE DEPLOYMENT
+            </button>
+            <button class="btn-danger" onclick="postConfirmation('no')">
+              ABORT / FAULT
+            </button>
+          </div>
+        </div>
+
+        <div class="msg-strip" id="sysMsg">
+          Initializing telemetry linkage hooks...
+        </div>
+      </div>
+
+      <!-- Sidebar Inputs Profile -->
+      <div>
+        <div class="card">
+          <div class="card-title">Dynamic Distance Parameters</div>
+          <form id="distanceForm">
+            <div class="form-row">
+              <div>
+                <label>Station To A (m)</label
+                ><input type="number" step="0.01" name="station_to_y" />
+              </div>
+              <div>
+                <label>Speed (m/s)</label
+                ><input type="number" step="0.01" name="speed_mps" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>A to B1 (m)</label
+                ><input type="number" step="0.01" name="b1_from_y" />
+              </div>
+              <div>
+                <label>A to B2 (m)</label
+                ><input type="number" step="0.01" name="b2_from_y" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>B1 to C1 (m)</label
+                ><input type="number" step="0.01" name="c1_from_b1" />
+              </div>
+              <div>
+                <label>B2 to C2 (m)</label
+                ><input type="number" step="0.01" name="c2_from_b2" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div style="grid-column: span 2">
+                <label>C1/C2 to E Terminal Distance (m)</label
+                ><input type="number" step="0.01" name="c_to_e" />
+              </div>
+            </div>
+            <button type="submit">Commit Structural Shift</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Control Loop Profiles (PID Tuning)</div>
+          <form id="pidForm">
+            <div class="form-row">
+              <div>
+                <label>Steering Kp</label
+                ><input type="number" step="0.01" name="pid_kp" />
+              </div>
+              <div>
+                <label>Steering Ki</label
+                ><input type="number" step="0.01" name="pid_ki" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Steering Kd</label
+                ><input type="number" step="0.01" name="pid_kd" />
+              </div>
+              <div>
+                <label>PID Max Limit</label
+                ><input type="number" step="1" name="pid_max" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Sample (ms)</label
+                ><input type="number" step="1" name="pid_sample_ms" />
+              </div>
+              <div>
+                <label>Angle Tol (°)</label
+                ><input type="number" step="1" name="angle_tol" />
+              </div>
+            </div>
+            <button type="submit">Inject Coefficients</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Power Configuration Rail</div>
+          <form id="voltageForm">
+            <label>Voltage Threshold Cutoff (V)</label>
+            <input type="number" step="0.1" id="input_v_thresh" />
+            <button type="submit">Update Safety Threshold</button>
+          </form>
+        </div>
+
+        <div class="card" style="border-color: #eab308">
+          <div class="card-title" style="color: #eab308">
+            Calibration Utilities
+          </div>
+          <button class="btn-secondary" onclick="triggerPositionReset()">
+            Align Home Reference (0,0)
+          </button>
+          <button
+            class="btn-danger"
+            style="margin-top: 8px"
+            onclick="triggerConfigReset()"
+          >
+            Reset Baseline Configuration
+          </button>
+          <button
+            class="btn-success"
+            style="margin-top: 8px"
+            onclick="triggerNodeRegister()"
+          >
+            Re-Register Victim Nodes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
